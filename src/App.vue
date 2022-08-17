@@ -103,7 +103,6 @@ const onMouseDown = (event: any) => {
   //得到点击的几何体
   var raycasters = raycaster.intersectObjects(scene.children);
   if (raycasters[0].object.name === 'locationBtn') {
-    alert(raycasters[0].object.name)
     // 当前房间
     currentHome = currentHome === "saloon" ? "bedroom" : "saloon";
     // 重新加载房间信息
@@ -146,7 +145,7 @@ const initHome = () => {
   // 根据几何体和材质创建物体
   const planeCube = new Mesh(planeGeometry, planeMaterial);
   // 定位物体的位置
-  planeCube.position.set(...homes[currentHome].btnPosition)
+  planeCube.position.set(homes[currentHome].btnPosition[0],homes[currentHome].btnPosition[1],homes[currentHome].btnPosition[2]);
   // 定位物体的位置 以x为轴顺时针旋转90°
   planeCube.rotateX(0.5 * Math.PI)
   // 给物体定义名称
