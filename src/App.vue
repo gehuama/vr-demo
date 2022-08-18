@@ -11,7 +11,9 @@ import {
   CircleGeometry,
   LineBasicMaterial,
   DoubleSide,
-  Raycaster
+  Raycaster,
+  Texture,
+  ImageLoader
 } from "three";
 // 导入轨道控制器
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
@@ -38,15 +40,27 @@ const render = () => {
 // 当前场景 客厅
 let currentHome = "saloon";
 
-
 // const material = new MeshBasicMaterial({ color: 0x00ff00 });
 // const cube = new Mesh(geometry, material);
 // scene.add(cube);
 // home1 
 let arr = ["left", "right", "top", "bottom", "front", "back"];
+/** 定义位置 */
+interface IBtn {
+  x: number;
+  y: number;
+  z: number;
+  name: string;
+}
+interface ISize {
+  width: number;
+  height: number;
+  depth: number;
+}
 interface IHome {
   materials: Array<any>;
-  btnPosition: Array<number>;
+  size: ISize;
+  btns: Array<IBtn>;
 };
 interface IHomes {
   [key: string]: IHome;
@@ -55,29 +69,114 @@ interface IHomes {
 let homes: IHomes = {
   saloon: {
     materials: [],
-    btnPosition: [-16, -8, -9]
+    size: {
+      width: 20,
+      height: 20,
+      depth: 20
+    },
+    btns: [{
+      x: -8,
+      y: -3,
+      z: -4,
+      name: "toilet"
+    }, {
+      x: -0.5,
+      y: -4,
+      z: 5,
+      name: "outdoor"
+    }]
   },
-  bedroom: {
+  toilet: {
     materials: [],
-    btnPosition: [18, -8, -7]
+    size: {
+      width: 20,
+      height: 20,
+      depth: 20
+    },
+    btns: [{
+      x: 6,
+      y: -4,
+      z: -2,
+      name: "saloon"
+    }]
+  },
+  outdoor: {
+    materials: [],
+    size: {
+      width: 20,
+      height: 20,
+      depth: 20
+    },
+    btns: [{
+      x: -1,
+      y: -1,
+      z: 3,
+      name: "saloon"
+    }]
   },
 }
-const homeMaterials = (type: string) => {
+
+/** 依据一张全图图片，得到纹理 */
+const getTexturesFromAtlasFile = (atlasImgUrl: string, tilesNum: number) => {
+  const textures: any[] = [];
+  for (let i = 0; i < tilesNum; i++) {
+    textures[i] = new Texture();
+  }
+  new ImageLoader()
+    .load(atlasImgUrl, (image) => {
+      let canvas, context;
+      const tileWidth = image.height;
+      for (let i = 0; i < textures.length; i++) {
+        canvas = document.createElement('canvas');
+        context = canvas.getContext('2d');
+        canvas.height = tileWidth;
+        canvas.width = tileWidth;
+        if (context) {
+          context.drawImage(image, tileWidth * i, 0, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth);
+        }
+        textures[i].image = canvas;
+        textures[i].needsUpdate = true;
+      }
+    });
+  return textures;
+}
+/** 依据1张全图，得到材质 */
+const getOneMaterials = (textures: any[]) => {
+  const materials: MeshBasicMaterial[] = [];
+  textures.forEach((item: any) => {
+    materials.push(new MeshBasicMaterial({ map: item }));
+  })
+  return materials
+}
+
+/** 依据6张图片，得到材质 */
+const getMaterials = (type: string) => {
+  let materials: MeshBasicMaterial[] = [];
   arr.forEach((item) => {
     // 纹理加载
     const texture = new TextureLoader().load(`./imgs/${type}/${type}_${item}.jpg`)
-     // 创建材质
+    // 创建材质
     const material = new MeshBasicMaterial({ map: texture, side: DoubleSide })
-    // 放入材质
-    switch (type) {
-      case "saloon":
-        homes.saloon.materials.push(material);
-        break;
-      case "bedroom":
-        homes.bedroom.materials.push(material);
-        break;
-    }
+    materials.push(material);
   });
+  return materials;
+}
+/** 根据场景类型组装材质数组 */
+const homeMaterials = (type: string) => {
+  switch (type) {
+    case "saloon":
+      homes[type].materials = getMaterials(type)
+      break;
+    case "toilet":
+      homes[type].materials = getMaterials(type)
+      break;
+    case "outdoor":
+      homes[type].materials = getOneMaterials(getTexturesFromAtlasFile(`./imgs/${type}/sun_temple_stripe.jpg`, 6))
+      break;
+    default:
+      homes.saloon.materials = getMaterials("saloon")
+      break;
+  }
 }
 /**
  * 光线投射Raycaster
@@ -102,30 +201,54 @@ const onMouseDown = (event: any) => {
   raycaster.setFromCamera(mouse, camera);
   //得到点击的几何体
   var raycasters = raycaster.intersectObjects(scene.children);
-  if (raycasters[0].object.name === 'locationBtn') {
+  console.log(raycasters);
+  if (["saloon","toilet", "outdoor"].indexOf(raycasters[0].object.name) !== -1) {
+    const currentCubes = ["homeMesh"];
+    homes[currentHome].btns.forEach(item => {
+      currentCubes.push(item.name)
+    })
     // 当前房间
-    currentHome = currentHome === "saloon" ? "bedroom" : "saloon";
+    currentHome = raycasters[0].object.name;
     // 重新加载房间信息
-    initHome();
+    initHome(currentCubes);
   }
 }
 //监视鼠标左键按下事件
 window.addEventListener("mousedown", onMouseDown, false);
 
-/** 初始化房间 */
-const initHome = () => {
-  // 客厅材质
-  homeMaterials(currentHome);
-
+/** 创建圆形按钮 */
+const getBtn = (btn: IBtn) => {
+  // 添加一个圆形按钮，点击后跳转到其他房间场景
+  const planeGeometry = new CircleGeometry(0.5, 30);
+  // 创建基础线条材质（LineBasicMaterial）一种用于绘制线框样式几何体的材质。
+  const planeMaterial = new LineBasicMaterial({ color: 0xffffff, side: DoubleSide });
+  // 根据几何体和材质创建物体
+  const planeCube = new Mesh(planeGeometry, planeMaterial);
+  // 定位物体的位置
+  planeCube.position.set(btn.x, btn.y, btn.z);
+  // 定位物体的位置 以x为轴顺时针旋转90°
+  planeCube.rotateX(0.5 * Math.PI)
+  // // 给物体定义名称
+  planeCube.name = btn.name
+  return planeCube
+}
+const clearCube = (cubeName: Array<string>) => {
   // 切换场景前把之前的物体清除掉
   // getObjectByName 用于来匹配子物体中Object3D.name属性的字符串
-  const homeMeshName = scene.getObjectByName("homeMesh")
-  const locationBtnName = scene.getObjectByName('locationBtn')
-  if (homeMeshName && locationBtnName) {
-    scene.remove(homeMeshName, locationBtnName)
-  }
+  cubeName.forEach(item => {
+    const meshName = scene.getObjectByName(item);
+    if (meshName) {
+      scene.remove(meshName)
+    }
+  })
+}
+/** 初始化房间 */
+const initHome = (currentCubes: Array<string>) => {
+  // 客厅材质
+  homeMaterials(currentHome);
+  clearCube(currentCubes);
   // 添加立方体
-  const geometry = new BoxGeometry(40, 40, 40);
+  const geometry = new BoxGeometry(homes[currentHome].size.width, homes[currentHome].size.height, homes[currentHome].size.depth);
   // 根据几何体和材质创建物体
   console.log(homes[currentHome].materials);
   const cube = new Mesh(geometry, homes[currentHome].materials);
@@ -138,20 +261,24 @@ const initHome = () => {
   cube.name = "homeMesh"
   scene.add(cube);
 
-  // 添加一个圆形按钮，点击后跳转到其他房间场景
-  const planeGeometry = new CircleGeometry(1.2, 20);
-  // 创建基础线条材质（LineBasicMaterial）一种用于绘制线框样式几何体的材质。
-  const planeMaterial = new LineBasicMaterial({ color: 0xffffff, side: DoubleSide });
-  // 根据几何体和材质创建物体
-  const planeCube = new Mesh(planeGeometry, planeMaterial);
-  // 定位物体的位置
-  planeCube.position.set(homes[currentHome].btnPosition[0],homes[currentHome].btnPosition[1],homes[currentHome].btnPosition[2]);
-  // 定位物体的位置 以x为轴顺时针旋转90°
-  planeCube.rotateX(0.5 * Math.PI)
-  // 给物体定义名称
-  planeCube.name = "locationBtn"
-  // 将物体添加到场景
-  scene.add(planeCube)
+  // // 添加一个圆形按钮，点击后跳转到其他房间场景
+  // const planeGeometry = new CircleGeometry(1.2, 20);
+  // // 创建基础线条材质（LineBasicMaterial）一种用于绘制线框样式几何体的材质。
+  // const planeMaterial = new LineBasicMaterial({ color: 0xffffff, side: DoubleSide });
+  // // 根据几何体和材质创建物体
+  // const planeCube = new Mesh(planeGeometry, planeMaterial);
+  // // 定位物体的位置
+  // planeCube.position.set(homes[currentHome].btnPosition[0], homes[currentHome].btnPosition[1], homes[currentHome].btnPosition[2]);
+  // // 定位物体的位置 以x为轴顺时针旋转90°
+  // planeCube.rotateX(0.5 * Math.PI)
+  // // 给物体定义名称
+  // planeCube.name = "locationBtn"
+  homes[currentHome].btns.forEach((item) => {
+    const planeCube = getBtn(item);
+    // 将物体添加到场景
+    scene.add(planeCube)
+  })
+
 }
 
 
@@ -167,7 +294,7 @@ onMounted(() => {
   controls.addEventListener('change', () => {
     renderer.render(scene, camera)
   })
-  initHome();
+  initHome([]);
   render();
 });
 </script>
