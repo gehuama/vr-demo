@@ -13,15 +13,26 @@ const goPage = (name:string) => {
 </script>
 
 <template>
-  <div v-if="currentPath === '/'" class="container">
-    <div @click="goPage('house')">VR 看房</div>
-    <div @click="goPage('isle')">3D 小岛</div>
+  <div class="nav" v-if="currentPath === '/'">
+    <div class="nav-item" @click="goPage('house')">VR 看房</div>
+    <div class="nav-item" @click="goPage('isle')">3D 小岛</div>
+    <div class="nav-item" @click="goPage('surround')">地月环绕</div>
   </div>
   <router-view></router-view>
 </template>
 
 <style scoped>
-.container {
-  background: #ffffff;
+.nav {
+  display: flex;
+  position: fixed;
+  width: 100%;
+}
+.nav-item{
+  flex: 1;
+  height: 50px;
+  line-height: 50px;
+  background: rgba(0,0,0,0.7);
+  padding:0 20px;
+  color: #FFFFFF;
 }
 </style>

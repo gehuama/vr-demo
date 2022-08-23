@@ -60,3 +60,12 @@ button:focus-visible {
 #app {
   margin: 0 auto;
 }
+
+canvas {
+  background-image: url("./imgs/surround/star.jpg");
+  background-size: cover;
+}
+.label {
+  color: #FFFFFF;
+  font-size: 16px;
+}
