@@ -34,42 +34,27 @@ let scene: THREE.Scene,
    */
   labelRenderer: CSS2DRenderer;
 
-/**
- * @description: 声明变量-月球
- */
+/** @description: 声明变量-月球 */
 let moon: THREE.Object3D<THREE.Event> | THREE.Mesh<THREE.SphereGeometry, THREE.MeshPhongMaterial>,
-  /**
-   * @description: 声明变量-地球
-   */
+  /** @description: 声明变量-地球 */
   earth: THREE.Object3D<THREE.Event> | THREE.Mesh<THREE.SphereGeometry, THREE.MeshPhongMaterial>;
-/**
- * @description: 跟踪时间
- */
+/** @description: 跟踪时间 */
 let clock = new THREE.Clock();
-/**
- * @description: 实例化纹理加载器
- */
+/** @description: 实例化纹理加载器 */
 const textureLoader = new THREE.TextureLoader();
 // 地球和月球半径大小
-/**
- * @description: 声明地球半径
- */
+/** @description: 声明地球半径 */
 const EARTH_RADIUS = 2.5;
-/**
- * @description: 声明月球半径
- */
+/** @description: 声明月球半径 */
 const MOON_RADIUS = 0.27;
-
-/**
- * @description: 初始化
- */
+/** @description: 初始化 */
 function init() {
   // 实例化相机
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
   camera.position.set(10, 5, 20);
   // 实例化场景
   scene = new THREE.Scene();
-  // 创建聚光灯光源创建 添加
+  /** @description: 创建聚光灯光源创建 添加 */
   const dirLight = new THREE.SpotLight(0xFFFFFF);
   dirLight.position.set(0, 0, 10);
   // 光源强度
@@ -77,15 +62,13 @@ function init() {
   // 灯光投射出阴影出来
   dirLight.castShadow = true;
   scene.add(dirLight)
-  // 添加环境光
+  /** @description: 添加环境光 */
   const aLight = new THREE.AmbientLight(0xFFFFFF);
   aLight.intensity = 0.3;
   scene.add(aLight)
-
-
-  // 创建月球
+  /** @description: 创建月球 */
   const moonGeometry = new THREE.SphereGeometry(MOON_RADIUS, 16, 16);
-  // 材质 高光材质
+  /** @description: 材质 高光材质 */
   const moonMaterial = new THREE.MeshPhongMaterial({
     map: textureLoader.load("./imgs/surround/textures/planets/moon_1024.jpg")
   });
@@ -94,10 +77,9 @@ function init() {
   moon.receiveShadow = true;
   moon.castShadow = true;
   scene.add(moon);
-
-  // 创建地球
+  /** @description: 创建地球 */
   const earthGeometry = new THREE.SphereGeometry(EARTH_RADIUS, 16, 16)
-  // 材质 高光材质
+  /** @description: 材质 高光材质 */
   const earthMaterial = new THREE.MeshPhongMaterial({
     shininess: 5,
     map: textureLoader.load("./imgs/surround/textures/planets/earth_atmos_2048.jpg"),
@@ -109,17 +91,19 @@ function init() {
   earth.receiveShadow = true;
   earth.castShadow = true;
   scene.add(earth);
-
+  /** @description: 创建地球文字dom */
   const earthDiv = document.createElement("div");
   earthDiv.className = "label";
   earthDiv.textContent = "地球";
+  /** @description: 渲染对象 */
   const earthLabel = new CSS2DObject(earthDiv);
   earthLabel.position.set(0, EARTH_RADIUS + 0.5, 0);
   earth.add(earthLabel);
-
+  /** @description: 创建月球文字dom */
   const moonDiv = document.createElement("div");
   moonDiv.className = "label";
   moonDiv.textContent = "月球";
+  /** @description: 渲染对象 */
   const moonLabel = new CSS2DObject(moonDiv);
   moonLabel.position.set(0, MOON_RADIUS + 0.5, 0);
   moon.add(moonLabel);
@@ -138,7 +122,7 @@ function init() {
   labelRenderer.domElement.style.position = "absolute";
   labelRenderer.domElement.style.top = "0px";
 
-  // 添加控制器
+  /** @description: 添加控制器 */
   const controls = new OrbitControls(camera, container.value);
   controls.enableDamping = true; // 动态阻尼系数 就是鼠标拖拽旋转灵敏度
   container.value.appendChild(renderer.domElement);
@@ -190,5 +174,14 @@ onMounted(() => {
 
 .container {
   background-color: #f0f0f0;
+}
+
+canvas {
+  background-image: url("../imgs/surround/star.jpg");
+  background-size: cover;
+}
+.label {
+  color: #FFFFFF;
+  font-size: 16px;
 }
 </style>
