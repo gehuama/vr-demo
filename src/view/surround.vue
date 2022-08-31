@@ -7,20 +7,62 @@ import { CSS2DRenderer, CSS2DObject } from "three/examples/jsm/renderers/CSS2DRe
 import { onMounted, ref } from "vue";
 
 import { useRoute } from 'vue-router'
+/**
+ * @description: 当前路由地址
+ */
 const route = useRoute()
 console.log(route.path)
-
+/**
+ * @description: 注册container元素
+ */
 const container = ref();
 
-//  声明全局变量
-let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, labelRenderer: CSS2DRenderer;
-let moon: THREE.Object3D<THREE.Event> | THREE.Mesh<THREE.SphereGeometry, THREE.MeshPhongMaterial>, earth: THREE.Object3D<THREE.Event> | THREE.Mesh<THREE.SphereGeometry, THREE.MeshPhongMaterial>;
+/**
+ * @description: 声明变量-场景
+ */
+let scene: THREE.Scene,
+  /**
+   * @description: 声明变量-相机
+   */
+  camera: THREE.PerspectiveCamera,
+  /**
+   * @description: 声明变量-渲染器
+   */
+  renderer: THREE.WebGLRenderer,
+  /**
+   * @description: 声明变量-标签渲染器
+   */
+  labelRenderer: CSS2DRenderer;
+
+/**
+ * @description: 声明变量-月球
+ */
+let moon: THREE.Object3D<THREE.Event> | THREE.Mesh<THREE.SphereGeometry, THREE.MeshPhongMaterial>,
+  /**
+   * @description: 声明变量-地球
+   */
+  earth: THREE.Object3D<THREE.Event> | THREE.Mesh<THREE.SphereGeometry, THREE.MeshPhongMaterial>;
+/**
+ * @description: 跟踪时间
+ */
 let clock = new THREE.Clock();
-// 实例化纹理加载器
+/**
+ * @description: 实例化纹理加载器
+ */
 const textureLoader = new THREE.TextureLoader();
 // 地球和月球半径大小
+/**
+ * @description: 声明地球半径
+ */
 const EARTH_RADIUS = 2.5;
+/**
+ * @description: 声明月球半径
+ */
 const MOON_RADIUS = 0.27;
+
+/**
+ * @description: 初始化
+ */
 function init() {
   // 实例化相机
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
@@ -95,18 +137,23 @@ function init() {
   labelRenderer.setSize(window.innerWidth, window.innerHeight);
   labelRenderer.domElement.style.position = "absolute";
   labelRenderer.domElement.style.top = "0px";
-  
+
   // 添加控制器
   const controls = new OrbitControls(camera, container.value);
   controls.enableDamping = true; // 动态阻尼系数 就是鼠标拖拽旋转灵敏度
   container.value.appendChild(renderer.domElement);
   container.value.appendChild(labelRenderer.domElement);
 }
+/**
+ * @description: 记录上一次时间
+ */
 let oldTime = 0;
+/**
+ * @description: 动画
+ */
 function animate() {
   const elapsed = clock.getElapsedTime();
   moon.position.set(Math.sin(elapsed) * 5, 0, Math.cos(elapsed) * 5);
-
   // 地球自转
   var axis = new THREE.Vector3(0, 1, 0);
   earth.rotateOnAxis(axis, (elapsed - oldTime) * Math.PI / 10);
@@ -121,7 +168,9 @@ window.onresize = () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
-// 挂在完毕之后获取dom
+/**
+ * @description: 挂载完毕之后获取dom
+ */
 onMounted(() => {
   init()
   animate()
@@ -142,6 +191,4 @@ onMounted(() => {
 .container {
   background-color: #f0f0f0;
 }
-
-
 </style>

@@ -44,7 +44,7 @@ camera.aspect = window.innerWidth / window.innerHeight;
 camera.updateProjectionMatrix();
 // 添加相机到场景里面
 scene.add(camera);
-// 初始化渲染器
+/** 初始化渲染器 */ 
 const renderer = new WebGLRenderer({
   antialias: true, // 设置抗锯齿
   // 对数深度缓冲区
@@ -61,10 +61,14 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
+/**
+ * @description: 注册container元素
+ */
 const container = ref();
 
-// 递归渲染
+/**
+ * @description: 渲染场景和相机内容
+ */
 const render = () => {
   // 渲染场景
   renderer.render(scene, camera);
@@ -72,30 +76,31 @@ const render = () => {
   requestAnimationFrame(render);
 }
 
-// // 添加平面
-// const planeGeometry = new PlaneGeometry(100, 100);
-// // 创建基础材质
-// const planeMaterial = new MeshBasicMaterial({
-//   color: 0xffffff
-// })
-// // 根据几何体和材质创建物体
-// const planeCube = new Mesh(planeGeometry, planeMaterial);
-// scene.add(planeCube);
-
-// 创建一个巨大的天空球
+/**
+ * @description: 创建一个巨大的天空球
+ */
 const skyGeometry = new SphereGeometry(1000, 60, 60);
+/**
+ * @description: 初始化纹理
+ */
 let texture = new TextureLoader().load("./imgs/isle/textures/sky.jpg");
-// 创建基础材质
+/**
+ * @description: 创建基础材质
+ */
 const skyMaterial = new MeshBasicMaterial({
   map: texture,
 })
 // 翻转球
 skyGeometry.scale(1, 1, -1);
-// 根据几何体和材质创建物体
+/**
+ * @description: 根据几何体和材质创建物体
+ */
 const skyCube = new Mesh(skyGeometry, skyMaterial);
 scene.add(skyCube);
 
-// 视频纹理
+/**
+ * @description: 视频纹理
+ */
 const video = document.createElement("video");
 video.src = "./imgs/isle/textures/sky.mp4";
 video.loop = true;
@@ -114,7 +119,9 @@ window.addEventListener("click", (e) => {
   }
 })
 
-// 载入环境纹理Hdr
+/**
+ * @description: 载入环境纹理Hdr
+ */
 const hdrLoader = new RGBELoader();
 hdrLoader.loadAsync("./imgs/isle/050.hdr").then((texture) => {
   texture.mapping = EquirectangularReflectionMapping;
@@ -124,14 +131,14 @@ hdrLoader.loadAsync("./imgs/isle/050.hdr").then((texture) => {
   scene.environment = texture;
 })
 
-// 添加平行光
+/** @description: 添加平行光 */
 const light = new DirectionalLight(0xffffff, 1);
 light.position.set(-100, 100, 10);
 scene.add(light);
 
-// 创建水面 
+/** @description: 创建水面 */
 const waterGeometry = new CircleBufferGeometry(300, 64) // 对半径300的圆进行64份切分
-// 创建水的材质
+/** @description: 创建水的材质 */
 const water = new Water(waterGeometry, {
   textureWidth: 1024, // 水面宽度
   textureHeight: 1024, // 水面高度
@@ -146,11 +153,10 @@ water.position.y = 3;
 water.rotation.x = -Math.PI / 2;
 scene.add(water)
 
-
-// // 添加小岛模型
-// // 实例化gltf载入库
+// 添加小岛模型
+/** @description: 实例化gltf载入库 */
 const loader = new GLTFLoader();
-// 实例化draco载入库
+/** @description: 实例化draco载入库 */
 const dracoLoader = new DRACOLoader();
 // 添加draco载入库 设置解压库文件
 dracoLoader.setDecoderPath("./imgs/isle/draco/");
@@ -161,8 +167,9 @@ loader.load("./imgs/isle/island2.glb",(gltf)=>{
   scene.add(gltf.scene)
 })
 
-// 将渲染器添加到页面
-// 挂在完毕之后获取dom
+/**
+ * @description: 挂载完毕之后获取dom
+ */
 onMounted(() => {
   // 添加控制器
   const controls = new OrbitControls(camera, container.value);

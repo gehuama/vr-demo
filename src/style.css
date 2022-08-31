@@ -62,7 +62,7 @@ button:focus-visible {
 }
 
 canvas {
-  background-image: url("./imgs/surround/star.jpg");
+  background-image: url("../imgs/surround/star.jpg");
   background-size: cover;
 }
 .label {
