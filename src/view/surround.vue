@@ -54,6 +54,7 @@ function init() {
   camera.position.set(10, 5, 20);
   // 实例化场景
   scene = new THREE.Scene();
+  scene.background = new THREE.TextureLoader().load("./imgs/surround/star.jpg")
   /** @description: 创建聚光灯光源创建 添加 */
   const dirLight = new THREE.SpotLight(0xFFFFFF);
   dirLight.position.set(0, 0, 10);
@@ -173,15 +174,6 @@ onMounted(() => {
 }
 
 .container {
-  background-color: #f0f0f0;
-}
-
-canvas {
-  background-image: url("../imgs/surround/star.jpg");
-  background-size: cover;
-}
-.label {
-  color: #FFFFFF;
-  font-size: 16px;
+  /* background-color: #f0f0f0; */
 }
 </style>

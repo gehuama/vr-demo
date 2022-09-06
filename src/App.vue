@@ -17,6 +17,7 @@ const goPage = (name:string) => {
     <div class="nav-item" @click="goPage('house')">VR 看房</div>
     <div class="nav-item" @click="goPage('isle')">3D 小岛</div>
     <div class="nav-item" @click="goPage('surround')">地月环绕</div>
+    <div class="nav-item" @click="goPage('missile')">3D导弹飞行演示</div>
   </div>
   <router-view></router-view>
 </template>
