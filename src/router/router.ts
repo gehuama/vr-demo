@@ -2,7 +2,7 @@
  * @Author: 马雄伟 maxiongwei@vchangyi.com
  * @Date: 2022-08-19 14:32:08
  * @LastEditors: 马雄伟 maxiongwei@vchangyi.com
- * @LastEditTime: 2022-08-31 16:43:05
+ * @LastEditTime: 2023-09-14 15:11:44
  * @FilePath: /vr-demo/src/router/router.ts
  * @description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,6 +11,8 @@ import house from '../view/house.vue'
 import isle from '../view/isle.vue'
 import surround from '../view/surround.vue'
 import missile from '../view/missile.vue'
+import fittingRoom from '../view/fitting-room.vue'
+import tlp from '../view/tlp.vue'
 
 
 // 2. 定义一些路由
@@ -21,7 +23,8 @@ const routes = [
   { path: '/isle', component: isle },
   { path: '/surround', component: surround },
   { path: '/missile', component: missile },
-  
+  { path: '/fitting-room', component: fittingRoom },
+  { path: '/tlp', component: tlp }
 ]
 
 // 3. 创建路由实例并传递 `routes` 配置
